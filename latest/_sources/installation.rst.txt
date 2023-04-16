@@ -19,20 +19,44 @@ Stable release
 
   .. code-block:: bash
 
-      conda install -c conda-forge rioxarray
+      conda config --prepend channels conda-forge
+      conda config --set channel_priority strict
+      conda create -n rioxarray_env rioxarray
+      conda activate rioxarray_env
+
+  - `rioxarray` `conda-forge repository <http://github.com/conda-forge/rioxarray-feedstock>`__
+
+  .. note::
+      "... we recommend always installing your packages inside a
+      new environment instead of the base environment from
+      anaconda/miniconda. Using envs make it easier to
+      debug problems with packages and ensure the stability
+      of your root env."
+        -- https://conda-forge.org/docs/user/tipsandtricks.html
+
+  .. warning::
+      Avoid using `pip install` with a conda environment. If you encounter
+      a python package that isn't in conda-forge, consider submitting a
+      recipe: https://github.com/conda-forge/staged-recipes/
 
 
 From source
 -----------
 
-The source for rioxarray can be downloaded from the `GitHub repo`_.
+The source for rioxarray can be installed from the `GitHub repo`_.
 
-.. code-block:: console
+.. code-block:: bash
 
-    $ git clone git@github.com:corteva/rioxarray.git
+    python -m pip install git+git://github.com/corteva/rioxarray.git#egg=rioxarray
 
-    $ cd rioxarray
-    $ python setup.py install
+
+To install for local development:
+
+.. code-block:: bash
+
+    git clone git@github.com:corteva/rioxarray.git
+    cd rioxarray
+    python -m pip install -e .[dev]
 
 
 .. _GitHub repo: https://github.com/corteva/rioxarray

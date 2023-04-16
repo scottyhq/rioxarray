@@ -4,6 +4,166 @@ History
 Latest
 ------
 
+0.14.1
+------
+- BUG: Fix :mod:`rioxarray.merge` CRS check (pull #655)
+- BUG: Remove tags with metadata added by rasterio in :func:`rioxarray.open_rasterio` (issue #666)
+
+0.14.0
+------
+- DEP: Drop Python 3.8 support (issue #582)
+- DEP: pin rasterio>=1.2 (pull #642)
+- BUG: Fix WarpedVRT in :func:`rioxarray.open_rasterio` when band_as_variable=True (issue #644)
+- BUG: Fix usage of `encode_cf_variable` in `rio.to_raster` (pull #652)
+
+0.13.4
+------
+- DEP: pin numpy>=1.21 (pull #636)
+
+0.13.3
+------
+- BUG: Handle data type error in `rio.reproject` (issue #618)
+
+0.13.2
+------
+- BUG:dataset: Fix writing tags for bands (issue #615)
+- BUG:dataset: prevent overwriting long_name attribute (pull #616)
+
+0.13.1
+------
+- BUG: Fix closing files manually (pull #607)
+- BUG: Add GDAL 3.6 driver auto-select fix (pull #606)
+
+0.13.0
+-------
+- ENH: Added band_as_variable option to open_rasterio (pull #600)
+
+0.12.4
+------
+- ENH: Added band_as_variable option to open_rasterio (issue #296)
+- BUG: Pass warp_extras dictionary to raster.vrt.WarpedVRT (issue #598)
+
+0.12.3
+------
+- BUG: Handle CF CRS export errors in `rio.write_crs` (discussion #591)
+
+0.12.2
+------
+- BUG: Fix `mask_and_scale` data load after `.sel` (issue #580)
+
+0.12.1
+------
+- BUG: Handle `_Unsigned` and load in all attributes (pull #575)
+
+0.12.0
+-------
+- ENH: Allow passing in bounds of different CRS in `rio.clip_box` (pull #563)
+
+0.11.2
+------
+- BUG: Fix reading file handle with dask (issue #550)
+- BUG: Fix reading cint16 files with dask (issue #542)
+- BUG: Ensure `rio.bounds` ordered correctly (issue #545)
+- BUG: Allow reading from `io.BytesIO` (issue #549)
+
+0.11.1
+------
+- BUG: Fix WarpedVRT param cache in :func:`rioxarray.open_rasterio` (issue #515)
+- BUG: Always generate coordinates in `rio.reproject` when GCPS|RPCS present (issue #517)
+
+0.11.0
+------
+- TYPE: Add more type hints (issue #373)
+- ENH: Add additional GDAL information to :func:`rioxarray.show_versions` (pull #513)
+
+0.10.3
+------
+- BUG: Remove xarray crs attribute in rio.write_crs (issue #488)
+
+0.10.2
+-------
+- BUG: Lazy load colormap through _manager.acquire() in merge (issue #479)
+
+0.10.1
+-------
+- DEP: pin rasterio>=1.1.1 (pull #471)
+- BUG: Corrected bounds and transform args to float (pull #475)
+
+0.10.0
+-------
+- DEP: Drop Python 3.7 support (issue #451)
+- ENH: Add GCPs reading and writing (issue #376)
+
+0.9.1
+------
+- BUG: Force coordinates to be exactly the same in `rio.reproject_match` (issue #298)
+
+0.9.0
+------
+- ENH: Allow additional kwargs to pass from reproject_match() -> reproject() (pull #436)
+
+0.8.0
+------
+- DEP: Make scipy an optional dependency (issue #413)
+- BUG: Return cached transform when axis data missing (pull #419)
+- BUG: Fix negative indexes in `rio.isel_window` (issue #421)
+
+0.7.1
+------
+- BUG: Handle transforms with rotation (pull #401)
+
+0.7.0
+------
+- BUG: `rio.clip` and `rio.clip_box` skip non-geospatial arrays in datasets when clipping (pull #392)
+- ENH: Add option for users to skip variables without spatial dimensions (pull #395)
+
+0.6.1
+------
+- BUG: Fix indexing error when `mask_and_scale=True` was combined with band dim chunking (issue #387, pull #388)
+
+0.6.0
+------
+- ENH: Add pad option to `rio.isel_window` (issue #381; pull #383)
+- BUG: Fix negative start in row or col window offsets in `rio.isel_window` (issue #381; pull #383)
+
+0.5.0
+------
+- ENH: Allow passing in kwargs to `rio.reproject` (issue #369; pull #370)
+- ENH: Allow nodata override and provide default nodata based on dtype in `rio.reproject` (pull #370)
+- ENH: Add support for passing in gcps to rio.reproject (issue #339; pull #370)
+- BUG: Remove duplicate acquire in open_rasterio (pull #364)
+- BUG: Fix exporting dataset to raster with non-standard dimensions (issue #372)
+
+0.4.3
+------
+- BUG: support GDAL CInt16, rasterio complex_int16 (pull #353)
+- TST: Fix merge tests for rasterio 1.2.5+ (issue #358)
+
+0.4.2
+------
+- BUG: Improve WarpedVRT support for gcps (pull #351)
+
+0.4.1
+------
+- BUG: pass kwargs with lock=False (issue #344)
+- BUG: Close file handle with lock=False (pull #346)
+
+0.4.0
+------
+- DEP: Python 3.7+ (issue #215)
+- DEP: xarray 0.17+ (needed for issue #282)
+- REF: Store `grid_mapping` in `encoding` instead of `attrs` (issue #282)
+- ENH: enable `engine="rasterio"` via xarray backend API (issue #197 pull #281)
+- ENH: Generate 2D coordinates for non-rectilinear sources (issue #290)
+- ENH: Add `encoded` kwarg to `rio.write_nodata` (discussions #313)
+- ENH: Added `decode_times` and `decode_timedelta` kwargs to `rioxarray.open_rasterio` (issue #316)
+- BUG: Use float32 for smaller dtypes when masking (discussions #302)
+- BUG: Return correct transform in `rio.transform` with non-rectilinear transform (discussions #280)
+- BUG: Update to handle WindowError in rasterio 1.2.2 (issue #286)
+- BUG: Don't generate x,y coords in `rio` methods if not previously there (pull #294)
+- BUG: Preserve original data type for writing to disk (issue #305)
+- BUG: handle lock=True in open_rasterio (issue #273)
+
 0.3.1
 ------
 - BUG: Compatibility changes with xarray 0.17 (issue #254)
