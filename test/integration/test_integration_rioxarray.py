@@ -2128,6 +2128,19 @@ def test_crs_is_removed():
     assert "crs" not in test_ds.attrs
 
 
+def test_write_crs_index():
+    test_da = xarray.DataArray(
+        numpy.zeros((5, 5)),
+        dims=("y", "x"),
+        coords={"y": numpy.arange(1, 6), "x": numpy.arange(2, 7)},
+    )
+    test_da = test_da.rio.write_crs(4326, use_crs_index=True)
+    assert hasattr(test_da, "indexes") is False
+    assert hasattr(test_da, "xindexes") is True
+    assert isinstance(test_da.xindexes["x"], rioxarray._crs_index.CRSIndex)
+    assert test_da.xindexes["y"].crs == test_da.rio.crs
+
+
 def test_write_crs_cf():
     test_da = xarray.DataArray(1)
     test_da = test_da.rio.write_crs(4326)

@@ -17,6 +17,7 @@ from affine import Affine
 from rasterio.control import GroundControlPoint
 from rasterio.crs import CRS
 
+from rioxarray._crs_index import CRSIndex
 from rioxarray._options import EXPORT_GRID_MAPPING, get_option
 from rioxarray.crs import crs_from_user_input
 from rioxarray.exceptions import (
@@ -439,6 +440,7 @@ class XRasterBase:
         input_crs: Optional[Any] = None,
         grid_mapping_name: Optional[str] = None,
         inplace: bool = False,
+        use_crs_index: bool = True,  # Set to True for testing!
     ) -> Union[xarray.Dataset, xarray.DataArray]:
         """
         Write the CRS to the dataset in a CF compliant manner.
@@ -454,6 +456,8 @@ class XRasterBase:
             Default is the grid_mapping name of the dataset.
         inplace: bool, optional
             If True, it will write to the existing dataset. Default is False.
+        use_crs_index: bool, optional
+            If True, will store CRS information as an xarray custom Index
 
         Returns
         -------
@@ -470,6 +474,7 @@ class XRasterBase:
 
         >>> raster = raster.rio.write_crs("epsg:4326")
         """
+        print("IN WRITE_CRS")
         if input_crs is not None:
             data_obj = self.set_crs(input_crs, inplace=inplace)
         else:
@@ -511,6 +516,19 @@ class XRasterBase:
         # remove old crs if exists
         data_obj.attrs.pop("crs", None)
 
+        # Assumes data_obj already has 'x_dim' and 'y_dim' set
+        if use_crs_index:
+            # Avoid ValueError: those coordinates already have an index: {'y', 'x'}
+            data_obj = data_obj.drop_indexes([data_obj.rio.x_dim, data_obj.rio.y_dim])
+
+            data_obj = data_obj.set_xindex(
+                (
+                    data_obj.rio.x_dim,
+                    data_obj.rio.y_dim,
+                ),
+                CRSIndex,
+                crs=data_obj.rio.crs,
+            )
         return data_obj.rio.write_grid_mapping(
             grid_mapping_name=grid_mapping_name, inplace=True
         )
