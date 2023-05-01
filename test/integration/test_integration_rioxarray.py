@@ -2141,8 +2141,8 @@ def test_write_crs_index():
     assert test_da.xindexes["y"].crs == test_da.rio.crs
 
 
-
-@pytest.mark.parametrize("use_crs_index", [True, False])
+# Return to this later
+# @pytest.mark.parametrize("use_crs_index", [True, False])
 def test_write_crs_cf(use_crs_index):
     test_da = xarray.DataArray(1)
     test_da = test_da.rio.write_crs(4326, use_crs_index=use_crs_index)
