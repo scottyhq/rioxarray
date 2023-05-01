@@ -2141,9 +2141,11 @@ def test_write_crs_index():
     assert test_da.xindexes["y"].crs == test_da.rio.crs
 
 
-def test_write_crs_cf():
+
+@pytest.mark.parametrize("use_crs_index", [True, False])
+def test_write_crs_cf(use_crs_index):
     test_da = xarray.DataArray(1)
-    test_da = test_da.rio.write_crs(4326)
+    test_da = test_da.rio.write_crs(4326, use_crs_index=use_crs_index)
     assert test_da.encoding["grid_mapping"] == "spatial_ref"
     assert test_da.rio.crs.to_epsg() == 4326
     assert "spatial_ref" in test_da.spatial_ref.attrs
