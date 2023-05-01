@@ -49,6 +49,7 @@ class RasterioBackend(xr.backends.common.BackendEntrypoint):
         decode_times=True,
         decode_timedelta=None,
         band_as_variable=False,
+        use_crs_index=False,
         open_kwargs=None,
     ):
         if open_kwargs is None:
@@ -67,6 +68,7 @@ class RasterioBackend(xr.backends.common.BackendEntrypoint):
             decode_times=decode_times,
             decode_timedelta=decode_timedelta,
             band_as_variable=band_as_variable,
+            use_crs_index=use_crs_index,
             **open_kwargs,
         )
         if isinstance(rds, xr.DataArray):
@@ -82,6 +84,7 @@ class RasterioBackend(xr.backends.common.BackendEntrypoint):
             )
         if drop_variables is not None:
             rds = rds.drop_vars(drop_variables)
+
         return rds
 
     def guess_can_open(self, filename_or_obj):  # pylint: disable=arguments-renamed

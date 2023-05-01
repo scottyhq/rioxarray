@@ -440,7 +440,7 @@ class XRasterBase:
         input_crs: Optional[Any] = None,
         grid_mapping_name: Optional[str] = None,
         inplace: bool = False,
-        use_crs_index: bool = True,  # Set to True for testing!
+        use_crs_index: bool = False,
     ) -> Union[xarray.Dataset, xarray.DataArray]:
         """
         Write the CRS to the dataset in a CF compliant manner.
@@ -474,7 +474,6 @@ class XRasterBase:
 
         >>> raster = raster.rio.write_crs("epsg:4326")
         """
-        print("IN WRITE_CRS")
         if input_crs is not None:
             data_obj = self.set_crs(input_crs, inplace=inplace)
         else:
@@ -518,20 +517,30 @@ class XRasterBase:
 
         # Assumes data_obj already has 'x_dim' and 'y_dim' set
         if use_crs_index:
-            # Avoid ValueError: those coordinates already have an index: {'y', 'x'}
-            data_obj = data_obj.drop_indexes([data_obj.rio.x_dim, data_obj.rio.y_dim])
+            # If it's already a CRSIndex don't convert
+            if CRSIndex not in [type(i) for i in data_obj.xindexes.values()]:
+                if (
+                    data_obj.rio.x_dim in data_obj.coords
+                    and data_obj.rio.y_dim in data_obj.coords
+                ):
+                    # need to use either indexes or new xindexes
+                    data_obj = data_obj.drop_indexes(
+                        [data_obj.rio.x_dim, data_obj.rio.y_dim]
+                    )
 
-            data_obj = data_obj.set_xindex(
-                (
-                    data_obj.rio.x_dim,
-                    data_obj.rio.y_dim,
-                ),
-                CRSIndex,
-                crs=data_obj.rio.crs,
-            )
-        return data_obj.rio.write_grid_mapping(
+                    data_obj = data_obj.set_xindex(
+                        (
+                            data_obj.rio.x_dim,
+                            data_obj.rio.y_dim,
+                        ),
+                        CRSIndex,
+                        crs=data_obj.rio.crs,
+                    )
+        result = data_obj.rio.write_grid_mapping(
             grid_mapping_name=grid_mapping_name, inplace=True
         )
+
+        return result
 
     def estimate_utm_crs(self, datum_name: str = "WGS 84") -> rasterio.crs.CRS:
         """Returns the estimated UTM CRS based on the bounds of the dataset.
