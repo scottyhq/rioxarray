@@ -10,10 +10,14 @@ from typing import Any
 
 EXPORT_GRID_MAPPING = "export_grid_mapping"
 SKIP_MISSING_SPATIAL_DIMS = "skip_missing_spatial_dims"
+USE_CRS_INDEX = "use_crs_index"
+CRS_INDEX_ERROR = "crs_index_error"
 
 OPTIONS = {
     EXPORT_GRID_MAPPING: True,
     SKIP_MISSING_SPATIAL_DIMS: False,
+    USE_CRS_INDEX: False,
+    CRS_INDEX_ERROR: True,
 }
 OPTION_NAMES = set(OPTIONS)
 
@@ -60,6 +64,10 @@ class set_options:  # pylint: disable=invalid-name
         If True, it will not perform spatial operations on variables
         within a :class:`xarray.Dataset` if the spatial dimensions
         are not found.
+    use_crs_index: bool, default=False
+        If True, will store CRS information as an xarray custom Index
+    crs_index_error: bool, default=True
+        If True raise an exception when CRSIndex are different, otherwise raise a warning.
 
 
     Usage as a context manager::

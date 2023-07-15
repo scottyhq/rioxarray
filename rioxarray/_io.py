@@ -998,7 +998,6 @@ def open_rasterio(
     decode_times: bool = True,
     decode_timedelta: Optional[bool] = None,
     band_as_variable: bool = False,
-    use_crs_index: bool = False,
     **open_kwargs,
 ) -> Union[Dataset, DataArray, list[Dataset]]:
     # pylint: disable=too-many-statements,too-many-locals,too-many-branches
@@ -1069,8 +1068,6 @@ def open_rasterio(
         If None (default), assume the same value of decode_time.
     band_as_variable: bool, default=False
         If True, will load bands in a raster to separate variables.
-    use_crs_index: bool, default=False
-        If True, will store CRS information as an xarray custom Index
     **open_kwargs: kwargs, optional
         Optional keyword arguments to pass into :func:`rasterio.open`.
 
@@ -1149,7 +1146,6 @@ def open_rasterio(
             mask_and_scale=mask_and_scale,
             decode_times=decode_times,
             decode_timedelta=decode_timedelta,
-            use_crs_index=use_crs_index,
             **open_kwargs,
         )
         manager.close()
@@ -1262,8 +1258,8 @@ def open_rasterio(
     rio_crs = riods.crs or result.rio.crs
     if rio_crs:
         # unable to get inplace=True to work with open_dataarray or open_dataset engine='rasterio'
-        # result.rio.write_crs(rio_crs, use_crs_index=use_crs_index, inplace=True)
-        result = result.rio.write_crs(rio_crs, use_crs_index=use_crs_index)
+        # result.rio.write_crs(rio_crs, inplace=True)
+        result = result.rio.write_crs(rio_crs)
     if has_gcps:
         result.rio.write_gcps(*riods.gcps, inplace=True)
     if chunks is not None:

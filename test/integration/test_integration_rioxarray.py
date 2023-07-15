@@ -41,6 +41,9 @@ from test.conftest import (
     open_rasterio_engine,
 )
 
+# Set global option to test CRSIndex across all tests
+# rioxarray.set_options(use_crs_index=True)
+
 try:
     SCIPY_LT_17 = version.parse(importlib.metadata.version("scipy")) < version.parse(
         "1.7.0"
@@ -2134,18 +2137,17 @@ def test_write_crs_index():
         dims=("y", "x"),
         coords={"y": numpy.arange(1, 6), "x": numpy.arange(2, 7)},
     )
-    test_da = test_da.rio.write_crs(4326, use_crs_index=True)
+    with rioxarray.set_options(use_crs_index=True):
+        test_da = test_da.rio.write_crs(4326)
     assert hasattr(test_da, "indexes") is False
     assert hasattr(test_da, "xindexes") is True
     assert isinstance(test_da.xindexes["x"], rioxarray._crs_index.CRSIndex)
     assert test_da.xindexes["y"].crs == test_da.rio.crs
 
 
-# Return to this later
-# @pytest.mark.parametrize("use_crs_index", [True, False])
-def test_write_crs_cf(use_crs_index):
+def test_write_crs_cf():
     test_da = xarray.DataArray(1)
-    test_da = test_da.rio.write_crs(4326, use_crs_index=use_crs_index)
+    test_da = test_da.rio.write_crs(4326)
     assert test_da.encoding["grid_mapping"] == "spatial_ref"
     assert test_da.rio.crs.to_epsg() == 4326
     assert "spatial_ref" in test_da.spatial_ref.attrs

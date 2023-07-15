@@ -18,7 +18,7 @@ from rasterio.control import GroundControlPoint
 from rasterio.crs import CRS
 
 from rioxarray._crs_index import CRSIndex
-from rioxarray._options import EXPORT_GRID_MAPPING, get_option
+from rioxarray._options import EXPORT_GRID_MAPPING, USE_CRS_INDEX, get_option
 from rioxarray.crs import crs_from_user_input
 from rioxarray.exceptions import (
     DimensionError,
@@ -204,7 +204,8 @@ def _get_spatial_dims(
 
 
 def _has_spatial_dims(
-    obj: Union[xarray.Dataset, xarray.DataArray], var: Union[Any, Hashable]
+    obj: Union[xarray.Dataset, xarray.DataArray],
+    var: Union[Any, Hashable],
 ) -> bool:
     """
     Check to see if the variable in the Dataset has spatial dimensions
@@ -440,7 +441,6 @@ class XRasterBase:
         input_crs: Optional[Any] = None,
         grid_mapping_name: Optional[str] = None,
         inplace: bool = False,
-        use_crs_index: bool = False,
     ) -> Union[xarray.Dataset, xarray.DataArray]:
         """
         Write the CRS to the dataset in a CF compliant manner.
@@ -456,8 +456,6 @@ class XRasterBase:
             Default is the grid_mapping name of the dataset.
         inplace: bool, optional
             If True, it will write to the existing dataset. Default is False.
-        use_crs_index: bool, optional
-            If True, will store CRS information as an xarray custom Index
 
         Returns
         -------
@@ -515,27 +513,46 @@ class XRasterBase:
         # remove old crs if exists
         data_obj.attrs.pop("crs", None)
 
-        # Assumes data_obj already has 'x_dim' and 'y_dim' set
-        if use_crs_index:
-            # If it's already a CRSIndex don't convert
-            if CRSIndex not in [type(i) for i in data_obj.xindexes.values()]:
-                if (
-                    data_obj.rio.x_dim in data_obj.coords
-                    and data_obj.rio.y_dim in data_obj.coords
-                ):
-                    # need to use either indexes or new xindexes
-                    data_obj = data_obj.drop_indexes(
-                        [data_obj.rio.x_dim, data_obj.rio.y_dim]
-                    )
+        if get_option(USE_CRS_INDEX):
+            no_existing_index = CRSIndex not in [
+                type(i) for i in data_obj.xindexes.values()
+            ]
+
+            try:
+                has_spatial_dims = hasattr(data_obj.rio, "x_dim") and hasattr(
+                    data_obj.rio, "y_dim"
+                )
+            except MissingSpatialDimensionError:
+                warnings.warn(
+                    "MissingSpatialDimensionError: x or y dimensions required for CRSIndex. See 'rio.set_spatial_dims()'"
+                )
+                has_spatial_dims = False
+                pass
+
+            if no_existing_index and has_spatial_dims:
+                # when loading netcdf with multiple variables, not all coords parsed
+                has_coords = (
+                    data_obj.rio.x_dim and data_obj.rio.y_dim in data_obj.coords
+                )
+                if has_coords:
+                    xdim, ydim = data_obj.rio.x_dim, data_obj.rio.y_dim
+
+                    # Must use either old .indexes or new .xindexes
+                    # avoid ValueError: those coordinates already have an index: {'y', 'x'}
+                    data_obj = data_obj.drop_indexes([xdim, ydim])
 
                     data_obj = data_obj.set_xindex(
                         (
-                            data_obj.rio.x_dim,
-                            data_obj.rio.y_dim,
+                            xdim,
+                            ydim,
                         ),
                         CRSIndex,
                         crs=data_obj.rio.crs,
                     )
+
+                    # Fix to appease some tests: test_nonstandard_dims*
+                    data_obj.rio.set_spatial_dims(xdim, ydim, inplace=True)
+
         result = data_obj.rio.write_grid_mapping(
             grid_mapping_name=grid_mapping_name, inplace=True
         )

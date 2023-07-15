@@ -16,8 +16,10 @@ from xarray import Variable, get_options
 from xarray.core.indexes import Index, PandasIndex, get_indexer_nd
 from xarray.core.indexing import IndexSelResult, merge_sel_results
 
+from rioxarray._options import CRS_INDEX_ERROR, get_option
 
-# XVEC
+
+# From XVEC
 def _format_crs(crs: CRS, max_width: int = 50) -> str:
     if crs is not None:
         srs = crs.to_string()
@@ -28,7 +30,7 @@ def _format_crs(crs: CRS, max_width: int = 50) -> str:
 
 
 class CRSIndex(Index):
-    """Coordinate-Refernce System aware, Xarray compatible index for rasters.
+    """Coordinate-Refernce System aware, Xarray compatible 2D index for rasters.
     A 'MetaIndex' that adds CRS information to 2 related spatial dimensions (x,y)
     The CRS defines coordinate system wherein the (x,y) points reside
     """
@@ -69,6 +71,7 @@ class CRSIndex(Index):
         return idx_variables
 
     def sel(self, labels, **kwargs) -> IndexSelResult:
+        print(self, labels, kwargs)
         results = []
         for k, index in self._indexes.items():
             if k in labels:
@@ -78,6 +81,8 @@ class CRSIndex(Index):
         return result
 
     def isel(self, indexers):
+        # Do a CRS check
+        # print(indexers)
         results = {}
         for k, index in self._indexes.items():
             if k in indexers:
@@ -103,6 +108,7 @@ class CRSIndex(Index):
         """Check if the index's projection is the same than the given one.
         If allow_none is True, empty CRS is treated as the same.
         """
+        # TODO: ignore_axis_order https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.equals
         if allow_none:
             if self.crs is None or other_crs is None:
                 return True
@@ -110,9 +116,7 @@ class CRSIndex(Index):
             return False
         return True
 
-    def _crs_mismatch_raise(
-        self, other_crs: CRS | None, warn: bool = False, stacklevel: int = 3
-    ):
+    def _crs_mismatch_raise(self, other_crs: CRS | None, stacklevel: int = 3):
         """Raise a CRS mismatch error or warning with the information
         on the assigned CRS.
         """
@@ -126,10 +130,10 @@ class CRSIndex(Index):
             f"Input CRS: {other_srs}\n"
         )
 
-        if warn:
-            warnings.warn(msg, UserWarning, stacklevel=stacklevel)
-        else:
+        if get_option(CRS_INDEX_ERROR):
             raise ValueError(msg)
+        else:
+            warnings.warn(msg, UserWarning, stacklevel=stacklevel)
 
     def equals(self, other: Index) -> bool:
         if not isinstance(other, CRSIndex):
