@@ -41,6 +41,9 @@ from test.conftest import (
     open_rasterio_engine,
 )
 
+# Set global option to test CRSIndex across all tests
+# rioxarray.set_options(use_crs_index=True)
+
 try:
     SCIPY_LT_17 = version.parse(importlib.metadata.version("scipy")) < version.parse(
         "1.7.0"
@@ -2126,6 +2129,20 @@ def test_crs_is_removed():
     test_ds = test_ds.rio.write_crs(4326)
 
     assert "crs" not in test_ds.attrs
+
+
+def test_write_crs_index():
+    test_da = xarray.DataArray(
+        numpy.zeros((5, 5)),
+        dims=("y", "x"),
+        coords={"y": numpy.arange(1, 6), "x": numpy.arange(2, 7)},
+    )
+    with rioxarray.set_options(use_crs_index=True):
+        test_da = test_da.rio.write_crs(4326)
+    assert hasattr(test_da, "indexes") is False
+    assert hasattr(test_da, "xindexes") is True
+    assert isinstance(test_da.xindexes["x"], rioxarray._crs_index.CRSIndex)
+    assert test_da.xindexes["y"].crs == test_da.rio.crs
 
 
 def test_write_crs_cf():

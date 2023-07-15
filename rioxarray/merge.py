@@ -204,7 +204,8 @@ def merge_arrays(
     xda.rio.write_nodata(
         nodata if nodata is not None else representative_array.rio.nodata, inplace=True
     )
-    xda.rio.write_crs(representative_array.rio.crs, inplace=True)
+    # xda.rio.write_crs(representative_array.rio.crs, inplace=True)
+    xda = xda.rio.write_crs(representative_array.rio.crs)
     xda.rio.write_transform(merged_transform, inplace=True)
     return xda
 
@@ -279,5 +280,6 @@ def merge_datasets(
         ),
         attrs=representative_ds.attrs,
     )
-    xds.rio.write_crs(merged_data[data_var].rio.crs, inplace=True)
+    # xds.rio.write_crs(merged_data[data_var].rio.crs, inplace=True)
+    xds = xds.rio.write_crs(merged_data[data_var].rio.crs)
     return xds

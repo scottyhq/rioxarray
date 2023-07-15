@@ -17,7 +17,8 @@ from affine import Affine
 from rasterio.control import GroundControlPoint
 from rasterio.crs import CRS
 
-from rioxarray._options import EXPORT_GRID_MAPPING, get_option
+from rioxarray._crs_index import CRSIndex
+from rioxarray._options import EXPORT_GRID_MAPPING, USE_CRS_INDEX, get_option
 from rioxarray.crs import crs_from_user_input
 from rioxarray.exceptions import (
     DimensionError,
@@ -203,7 +204,8 @@ def _get_spatial_dims(
 
 
 def _has_spatial_dims(
-    obj: Union[xarray.Dataset, xarray.DataArray], var: Union[Any, Hashable]
+    obj: Union[xarray.Dataset, xarray.DataArray],
+    var: Union[Any, Hashable],
 ) -> bool:
     """
     Check to see if the variable in the Dataset has spatial dimensions
@@ -511,9 +513,51 @@ class XRasterBase:
         # remove old crs if exists
         data_obj.attrs.pop("crs", None)
 
-        return data_obj.rio.write_grid_mapping(
+        if get_option(USE_CRS_INDEX):
+            no_existing_index = CRSIndex not in [
+                type(i) for i in data_obj.xindexes.values()
+            ]
+
+            try:
+                has_spatial_dims = hasattr(data_obj.rio, "x_dim") and hasattr(
+                    data_obj.rio, "y_dim"
+                )
+            except MissingSpatialDimensionError:
+                warnings.warn(
+                    "MissingSpatialDimensionError: x or y dimensions required for CRSIndex. See 'rio.set_spatial_dims()'"
+                )
+                has_spatial_dims = False
+                pass
+
+            if no_existing_index and has_spatial_dims:
+                # when loading netcdf with multiple variables, not all coords parsed
+                has_coords = (
+                    data_obj.rio.x_dim and data_obj.rio.y_dim in data_obj.coords
+                )
+                if has_coords:
+                    xdim, ydim = data_obj.rio.x_dim, data_obj.rio.y_dim
+
+                    # Must use either old .indexes or new .xindexes
+                    # avoid ValueError: those coordinates already have an index: {'y', 'x'}
+                    data_obj = data_obj.drop_indexes([xdim, ydim])
+
+                    data_obj = data_obj.set_xindex(
+                        (
+                            xdim,
+                            ydim,
+                        ),
+                        CRSIndex,
+                        crs=data_obj.rio.crs,
+                    )
+
+                    # Fix to appease some tests: test_nonstandard_dims*
+                    data_obj.rio.set_spatial_dims(xdim, ydim, inplace=True)
+
+        result = data_obj.rio.write_grid_mapping(
             grid_mapping_name=grid_mapping_name, inplace=True
         )
+
+        return result
 
     def estimate_utm_crs(self, datum_name: str = "WGS 84") -> rasterio.crs.CRS:
         """Returns the estimated UTM CRS based on the bounds of the dataset.

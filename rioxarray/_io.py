@@ -793,6 +793,7 @@ def _subdataset_groups_to_dataset(
             dataset = dataset.pop()
     else:
         dataset = Dataset(attrs=global_tags)
+
     return dataset
 
 
@@ -1256,10 +1257,11 @@ def open_rasterio(
     result.rio.write_transform(riods.transform, inplace=True)
     rio_crs = riods.crs or result.rio.crs
     if rio_crs:
-        result.rio.write_crs(rio_crs, inplace=True)
+        # unable to get inplace=True to work with open_dataarray or open_dataset engine='rasterio'
+        # result.rio.write_crs(rio_crs, inplace=True)
+        result = result.rio.write_crs(rio_crs)
     if has_gcps:
         result.rio.write_gcps(*riods.gcps, inplace=True)
-
     if chunks is not None:
         result = _prepare_dask(result, riods, filename, chunks)
 

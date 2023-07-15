@@ -82,6 +82,7 @@ class RasterioBackend(xr.backends.common.BackendEntrypoint):
             )
         if drop_variables is not None:
             rds = rds.drop_vars(drop_variables)
+
         return rds
 
     def guess_can_open(self, filename_or_obj):  # pylint: disable=arguments-renamed
