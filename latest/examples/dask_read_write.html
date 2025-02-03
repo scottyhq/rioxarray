@@ -1,23 +1,25 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Example - Reading and Writing with Dask &mdash; rioxarray 0.14.2.dev0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Example - Reading and Writing with Dask &mdash; rioxarray 0.18.3.dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=9d5be081"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,9 +38,6 @@
           <a href="../index.html" class="icon icon-home">
             rioxarray
           </a>
-              <div class="version">
-                0.14.2.dev0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -113,7 +112,7 @@
            <div itemprop="articleBody">
              
   <section id="Example---Reading-and-Writing-with-Dask">
-<h1>Example - Reading and Writing with Dask<a class="headerlink" href="#Example---Reading-and-Writing-with-Dask" title="Permalink to this heading"></a></h1>
+<h1>Example - Reading and Writing with Dask<a class="headerlink" href="#Example---Reading-and-Writing-with-Dask" title="Link to this heading"></a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -126,13 +125,16 @@ import multiprocessing.popen_spawn_posix
 import threading
 
 from dask.distributed import Client, LocalCluster, Lock
-from dask.utils import SerializableLock
 
 import rioxarray
 </pre></div>
 </div>
 </div>
-<p>Tips for using dask locks: - Be careful about what lock you use for your process. It is required to have a lock for each worker, so the more fine-grained the better. - The reading and writing processes need the same type of lock. They don’t have to share the same lock, but they do nead a lock of the same type.</p>
+<p>Tips for using dask locks:</p>
+<ul class="simple">
+<li><p>Be careful about what lock you use for your process. It is required to have a lock for each worker, so the more fine-grained the better.</p></li>
+<li><p>The reading and writing processes need the same type of lock. They don’t have to share the same lock, but they do nead a lock of the same type.</p></li>
+</ul>
 <p>See docs for:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="read-locks.html"><span class="doc">Reading COGs in Parallel</span></a></p></li>
@@ -141,7 +143,7 @@ import rioxarray
 <li><p>Dataset: <a class="reference internal" href="../rioxarray.html#rioxarray.raster_dataset.RasterDataset.to_raster"><span class="std std-ref">rio.to_raster()</span></a></p></li>
 </ul>
 <section id="No-distributed-computing-example">
-<h2>No distributed computing example<a class="headerlink" href="#No-distributed-computing-example" title="Permalink to this heading"></a></h2>
+<h2>No distributed computing example<a class="headerlink" href="#No-distributed-computing-example" title="Link to this heading"></a></h2>
 <p>Note: Without a lock provided, <code class="docutils literal notranslate"><span class="pre">to_raster</span></code> does not use dask to write to disk.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -157,7 +159,7 @@ xds.rio.to_raster(&quot;simple_write.tif&quot;, tiled=True)
 </div>
 </section>
 <section id="Multithreaded-example">
-<h2>Multithreaded example<a class="headerlink" href="#Multithreaded-example" title="Permalink to this heading"></a></h2>
+<h2>Multithreaded example<a class="headerlink" href="#Multithreaded-example" title="Link to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -175,7 +177,7 @@ xds.rio.to_raster(
 </div>
 </section>
 <section id="Multiple-worker-example">
-<h2>Multiple worker example<a class="headerlink" href="#Multiple-worker-example" title="Permalink to this heading"></a></h2>
+<h2>Multiple worker example<a class="headerlink" href="#Multiple-worker-example" title="Link to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>

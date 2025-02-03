@@ -4,6 +4,77 @@ History
 Latest
 ------
 
+0.18.2
+------
+- BUG: Fix reproject with geoloc arrays not named xc|yc (#840)
+
+0.18.1
+-------
+- DEP: Pin rasterio>=1.3.7 (pull #826)
+- BUG:merge: Ensure dims and coords match input array (pull #828)
+
+0.18.0
+------
+- ENH:reproject: Support geolocation arrays (pull #822)
+- REF: Add positional arguments requirements (pull #806)
+- BUG:merge: Fix merging masked and scaled data (issue #814)
+- BUG: Fix chunk arguments for normalize_chunks (pull #820)
+- BUG: Squeeze when using interpolate_na with extra dim (pull #810)
+* BUG: Properly handle encoding/decoding scales and offsets by (pull #821)
+- DOC: Clearer coordinate docstring for `open_rasterio` (pull #811)
+
+0.17.0
+------
+- REF:reproject: Make NaN default float nodata & update integer defaults
+
+0.16.0
+------
+- ENH: Add `allow_one_dimensional_raster` option to `rio.clip_box` (issue #708)
+- MNT: recommend `rio.write_crs`` & deprecate `rio.set_crs` (pull #793)
+
+0.15.7
+------
+- BUG: Remove grid_mapping from attrs when writing (pull #783)
+- BUG: Ensure gcp_crs exists before writing in `rio.write_gcps` (issue #646)
+
+0.15.6
+------
+- BUG: Raise OverflowError when nodata data type conversion is unsafe (pull #782)
+- BUG: Support writing GCPs to netCDF (issue #778)
+- BUG: Fix reading dask chunks when band_as_variable=True (issue #761)
+- REF:merge: Use merge path & rio.to_raster (pull #781)
+
+0.15.5
+------
+- BUG:reproject: Allow rotated rasters (issue #746)
+
+0.15.4
+------
+- BUG:reproject_match: Remove setting spatial dims on output resampled dataset (issue #768)
+
+0.15.3
+------
+- BUG:merge: Use `rasterio.io.MemoryFile`` for reading (pull #765)
+- BUG:merge: Add simple defaults for unused payload/colormap (pull #766)
+
+0.15.2
+------
+- BUG: Add decode_coords kwarg to backend entrypoint (pull #763)
+- BUG: Avoid DeprecationWarning: xr.Dataset.drop() -> xr.Dataset.drop_vars() (pull #740)
+
+0.15.1
+-------
+- DEP: Support Python 3.10-3.12 (pull #723)
+- DEP: rasterio 1.3+, pyproj 3.3+ (pull #725, #727)
+- DEP: xarray 2022.3.0+ & numpy 1.23+ (pull #728)
+- ENH: Robust handling of GCPs without `z` component (issue #731)
+
+0.15.0
+------
+- BUG: Fix setting spatial dims internally during propagation (pull #682)
+- ENH: Pass on on-disk chunk sizes as preferred chunk sizes to the xarray backend (pull #678)
+- MNT: add __all__ to top level module (issue #680)
+
 0.14.1
 ------
 - BUG: Fix :mod:`rioxarray.merge` CRS check (pull #655)
